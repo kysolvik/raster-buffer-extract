@@ -1,0 +1,9 @@
+numpy
+matplotlib
+rasterio
+geopandas
+rasterstats
+pandas
+shapely
+timeit
+
