@@ -24,12 +24,6 @@ def generate_points(radius=20, n=10000):
     pts = np.array([r*np.cos(t), r*np.sin(t)])*radius
     return pts
 
-def get_cells(target_pt, sample_pts, ds):
-    # Outdated
-    return np.unique(
-        np.array(ds.index(sample_pts[0] +  target_pt.x, sample_pts[1] + target_pt.y)),
-    axis=1, return_counts=True)
-
 def get_mean(band, cell_indices, cell_counts):
     # Outdated
     return np.average(band[cell_indices[0], cell_indices[1]], weights=cell_counts)
