@@ -4,7 +4,6 @@ import rasterio as rio
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
-import time
 
 def transform_x_to_lon(center_lat, buf_x):
     latlen = 111319.5
@@ -31,16 +30,10 @@ def get_mean(band, cell_indices, cell_counts):
 def get_all_cells(target_pts, sample_pts, ds, latlon=True):
     # This is the slowest section by far. Need to find a speed up
     if latlon:
-        s = time.time()
         x = np.swapaxes(transform_x_to_lon(target_pts.y, sample_pts[0]) + np.array(target_pts.x),0,1).flatten()
-        print(time.time() - s)
-        print(x.shape)
 
-        s = time.time()
         temp_y_pts = transform_y_to_lat(sample_pts[1])
         y = np.array([temp_y_pts + y for y in target_pts.y]).flatten()
-        print(time.time() - s)
-        print(y.shape)
     else:
         x = np.array([sample_pts[0] + x for x in target_pts.x]).flatten()
         y = np.array([sample_pts[1] + y for y in target_pts.y]).flatten()
