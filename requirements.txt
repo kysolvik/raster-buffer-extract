@@ -1,9 +1,8 @@
-numpy
-matplotlib
-rasterio
-geopandas
-rasterstats
-pandas
-shapely
-timeit
+numpy==1.18.4
+matplotlib==3.2.1
+rasterio==1.1.4
+geopandas==0.7.0
+rasterstats==0.14.0
+pandas==1.0.3
+Shapely==1.7.0
 
