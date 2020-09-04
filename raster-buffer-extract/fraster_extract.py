@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Functions for extracting raster values in buffer around points.
+
+See:
+    fraster_extract_wrapper.py for usage
+    explore_buffer_extract.ipynb for info
+"""
+
+
 import os
 import numpy as np
 import rasterio as rio

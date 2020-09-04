@@ -1,4 +1,14 @@
-"""Requires fraster_extract.py in working dir"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Extract raster values within buffered geometry centroids.
+
+python3 fraster_extract_wrapper.py --help for list of args
+
+Example Usage: 
+    python3 ../data/SJER_example_points.shp ../data/SJER_lidarCHM.tif ./output.csv 200 
+"""
+
+
 import fraster_extract as fe
 import os
 import glob
