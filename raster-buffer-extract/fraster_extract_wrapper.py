@@ -5,7 +5,7 @@
 python3 fraster_extract_wrapper.py --help for list of args
 
 Example Usage: 
-    python3 ../data/SJER_example_points.shp ../data/SJER_lidarCHM.tif ./output.csv 200 
+    python3 fraster_extract_wrapper.py ../data/SJER_example.shp ../data/SJER_lidarCHM.tif ./output.csv 10 --not_latlon 
 """
 
 
@@ -43,21 +43,18 @@ def argparse_init():
         help = 'Number of random points to sample inside buffer.',
         type = int)
     p.add_argument('--stat',
-        dest = 'stat',
         default = 'mean',
         choices = ['mean', 'mean_max', 'all', 'count_dict'],
         help = 'Statistic to calculate. One of: mean, mean_max, all, or count_dict',
         type = str)
     p.add_argument('--batch_size',
-        dest=batch_size,
         default=10000,
         help = 'Batch size if many geometries. Default is 10000, anything less will run in a single batch',
         type = int)
     p.add_argument('--not_latlon',
-        dest=latlon,
+        dest='latlon',
         action='store_false',
-        help = 'Use this flag if the coordinates are NOT latlon and are already in meters instead')
-    parser.add_argument("--flag", action="store_true")
+        help = 'Use this flag if the raster is NOT latlon and are already in meters instead')
 
     return(p)
 
@@ -71,7 +68,8 @@ def main():
     # Prep centroid dataframe
     gdf = gpd.read_file(args.shp)
     gdf['geometry'] = gdf['geometry'].centroid
-    gdf = gdf.to_crs('epsg:4326')
+    if args.latlon:
+        gdf = gdf.to_crs('epsg:4326')
 
     batch_size = args.batch_size
     output_df = gdf.copy().drop(columns='geometry')
@@ -80,11 +78,11 @@ def main():
     i = 0
     while i < gdf.shape[0]:
         end = min(i+batch_size, gdf.shape[0])
-        all_vals += fe.random_buffer(gdf.iloc[i:end]['geometry'], ds, radius=args.radius, n_sample=args.n_sample,
-                stat=args.stat, latlon=args.latlon)
+        all_vals += list(fe.random_buffer(gdf.iloc[i:end]['geometry'], ds, radius=args.radius, n_sample=args.n_sample,
+                stat=args.stat, latlon=args.latlon))
         i+=batch_size
 
-    output_df[os.path.basename(args.raster)] = all_vals
+    output_df[os.path.splitext(os.path.basename(args.raster))[0] + '_' + args.stat] = all_vals
 
     output_df.to_csv(args.output_csv, index=False)
 
