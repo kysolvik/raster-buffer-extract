@@ -6,12 +6,8 @@ import geopandas as gpd
 import re
 import pandas as pd
 import rasterio as rio
+import argparse
 
-
-shp = ''
-raster_dir = '../data/landcover/wgs84/'
-output_csv = '../data/fraster_landcover_allyears_bigger.csv'
-radius = 200
 
 def argparse_init():
     """Prepare ArgumentParser for inputs"""
@@ -31,6 +27,27 @@ def argparse_init():
     p.add_argument('radius',
         help = 'Buffer radius, in meters',
         type = int)
+    p.add_argument('--nsample',
+        dest = 'n_sample',
+        default = 1000,
+        help = 'Number of random points to sample inside buffer.',
+        type = int)
+    p.add_argument('--stat',
+        dest = 'stat',
+        default = 'mean',
+        choices = ['mean', 'mean_max', 'all', 'count_dict'],
+        help = 'Statistic to calculate. One of: mean, mean_max, all, or count_dict',
+        type = str)
+    p.add_argument('--batch_size',
+        dest=batch_size,
+        default=10000,
+        help = 'Batch size if many geometries. Default is 10000, anything less will run in a single batch',
+        type = int)
+    p.add_argument('--not_latlon',
+        dest=latlon,
+        action='store_false',
+        help = 'Use this flag if the coordinates are NOT latlon and are already in meters instead')
+    parser.add_argument("--flag", action="store_true")
 
     return(p)
 
@@ -53,8 +70,10 @@ def main():
     i = 0
     while i < gdf.shape[0]:
         end = min(i+batch_size, gdf.shape[0])
-        all_vals += fe.random_buffer(gdf.iloc[i:end]['geometry'], ds, radius=radius, n_sample=args.n_sample, stat=args.stat)
+        all_vals += fe.random_buffer(gdf.iloc[i:end]['geometry'], ds, radius=args.radius, n_sample=args.n_sample,
+                stat=args.stat, latlon=args.latlon)
         i+=batch_size
+
     output_df[os.path.basename(args.raster)] = all_vals
 
     output_df.to_csv(args.output_csv, index=False)

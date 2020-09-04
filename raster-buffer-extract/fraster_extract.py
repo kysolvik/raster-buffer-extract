@@ -54,6 +54,11 @@ def get_all_mean_max(band, cell_indices, n_sample):
     maxes = np.max(reshaped_vals, axis=1)
     return avg, maxes
 
+def get_all_mean(band, cell_indices, n_sample):
+    reshaped_vals = extract_reshape_vals(band, cell_indices, n_sample)
+    avg =  np.mean(np.unique(reshaped_vals, axis=1), axis=1)
+    return avg
+
 def get_all_vals(band, cell_indices, n_sample, latlon=True):
     reshaped_vals = extract_reshape_vals(band, cell_indices, n_sample)
     return reshaped_vals
@@ -62,6 +67,8 @@ def full_pt_calc(target_pt, band, ds, sample_pts, stat='mean_max', latlon=True):
     cells = get_all_cells(target_pt, sample_pts, ds, latlon=latlon)
     if stat=='mean_max':
         out = get_all_mean_max(band, cells, sample_pts.shape[1])
+    elif stat=='mean':
+        out = get_all_mean(band, cells, sample_pts.shape[1])
     elif stat=='all':
         out = get_all_vals(band, cells, sample_pts.shape[1])
     elif stat=='count_dict':
@@ -73,7 +80,7 @@ def full_pt_calc(target_pt, band, ds, sample_pts, stat='mean_max', latlon=True):
         print('Method not recognizable, returning all cell values')
     return out
 
-def random_buffer(gdf_coords, ds, radius=20, n_sample=1000, stat='mean_max', latlon=True):
+def random_buffer(gdf_coords, ds, radius=20, n_sample=1000, stat='mean', latlon=True):
     sample_pts = generate_points(radius, n_sample)
     band = ds.read(1)
     return full_pt_calc(gdf_coords, band, ds, sample_pts, stat=stat, latlon=latlon)
